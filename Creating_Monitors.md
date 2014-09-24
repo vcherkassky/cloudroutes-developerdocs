@@ -4,17 +4,19 @@
 
 With CloudRoutes we have kept the creation of monitors as simple as possible by making the monitors modular. Creating a new monitor doesn't require you to edit the main `web.py` file, but rather requires you to create several new files that are dynamically loaded into the application.
 
-Because monitors are based on a modular systems it is important to define a shortname for the monitor that will be used to identify the module. For example: for HTTP GET's that search for a specific keyword the shortname is `http-keyword`. This shortname is used in filenames and as the `ctype` value stored in the database.
+Because monitors are based on a modular systems it is important to define a shortname for the monitor that will be used to identify the module. 
 
-In this document we will be using the `http-keyword` monitor as reference.
+**For example:** An HTTP GET based monitor that searches for a specific keyword, has a shortname of `http-keyword`. This shortname is used in filenames and as the `ctype` value stored in the database. `ctype` is an abbreviation for **Check Type** so you can think of this shortname as a unique classifier for the monitor.
+
+In this document we will be using the `http-keyword` monitor as reference, this monitor is a Non-API based monitor and is a good example of how simple a monitor is to create.
 
 ## Creating a new monitor
 
 ### Step 1: The monitor creation form - wtforms
 
-CloudRoutes is written using the [flask](http://flask.pocoo.org/) framework, a common utility for creating forms within flask is [wtforms](https://wtforms.readthedocs.org/en/latest/). We utilize wtforms for all forms within the CloudRoutes gui, this includes the forms that create monitors.
+CloudRoutes is written using the [flask](http://flask.pocoo.org/) framework, a common utility for creating web forms within flask is [wtforms](https://wtforms.readthedocs.org/en/latest/). We utilize wtforms for all web forms within the CloudRoutes gui, this includes the forms that create monitors.
 
-For this document we will create a new monitor named `some-monitor`; the first step of creating a monitor is to create the web form needed for users. To start the form we will create a directory in `cloudroutes-crweb/monitorforms/` called `some-monitor`. Within that directory we will create a `__init__.py` file that will contain a class that defines the form fields required 
+For this document we will create a new monitor named `some-monitor`; the first step of creating a monitor is to create the web form needed for users. To start the web form we will create a directory in `cloudroutes-crweb/monitorforms/` called `some-monitor`. Within that directory we will create a `__init__.py` file that will contain a class that defines the form fields required 
 
     $ mkdir cloudroutes-crweb/monitorforms/some-monitor
     $ vi cloudroutes-crweb/monitorforms/some-monitor/__init__.py
@@ -45,7 +47,7 @@ Most monitors should inherit the DatacenterCheckForm, only monitors that do not 
 
 ### Step 2: The monitor creation form - html
 
-Where Step #1 defines what fields should be present in the form Step #2 actually creates the web form page. The easiest way to create a new forms page is to simply copy an existing page and modify the input fields; a good reference would be the [http-keyword](https://github.com/asm-products/cloudroutes-static/blob/master/templates/monitors/http-keyword.html) html page.
+Where Step #1 defines what fields should be present in the form Step #2 actually creates the web form page. The easiest way to create a new web form page is to simply copy an existing page and modify the input fields; a good reference would be the [http-keyword](https://github.com/asm-products/cloudroutes-static/blob/master/templates/monitors/http-keyword.html) html page.
 
 #### Form inputs
 
@@ -62,7 +64,7 @@ The below is an example form input written in HTML and [Jinja2](http://jinja.poc
       </div>
     </div> 
 
-As you can see Jinja2 offers the ability to use if statements within the template. In the above example if we are in edit mode edit will be true and the form will be prefilled with the value of data['monitor']['data']['host']. When generating the edit page in flask, the main web application will lookup an existing monitors information and store it within the dictionary data['monitor'].
+As you can see Jinja2 offers the ability to use if statements within the template. In the above example if we are in edit mode `data['edit']` will be `True` and the form will be prefilled with the value of `data['monitor']['data']['host']`. When generating the edit page in flask, the main web application will lookup the existing monitors information and store it within the dictionary `data['monitor']`.
 
 The below is an example of what data is in an `http-keyword` monitor.
 
@@ -93,9 +95,9 @@ The below is an example of what data is in an `http-keyword` monitor.
       "url":  "asdfweqrue0rj2302309rur20cdsa09dafw09iacs09caswekflkwjqfklwejfjf.qwerzPHUz7heZ6VxA"
     }
 
-When a monitor form is submitted the web application will process the form and define the ctype, name, failcount, status, uid, and url keys. The application will then take all of the forms inputs and put them into a dictionary under the data key. This system gives us the ability to create new monitors without having to redefine all new columns (though our DB is JSON based so there are no columns) or customize anything outside of the web form itself.
+When a monitor form is submitted the web application will process the form and define the `ctype`, `name`, `failcount`, `status`, `uid`, and `url` keys. The application will then take all of the forms inputs and put them into a dictionary under the `data` key. This system gives us the ability to create new monitors without having to redefine or customize anything outside of the web form itself.
 
-In simplier terms, the data key can change between monitor types however the other fields in data['monitor'] are meta fields that exist for every monitor.
+In simplier terms, the data key can change between monitor types however the other fields in `data['monitor']` are meta fields that exist for every monitor.
 
 #### some-monitor.js
 
