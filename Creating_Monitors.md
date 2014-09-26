@@ -16,12 +16,12 @@ In this document we will be using the `http-keyword` monitor as reference, this 
 
 CloudRoutes is written using the [flask](http://flask.pocoo.org/) framework, a common utility for creating web forms within flask is [wtforms](https://wtforms.readthedocs.org/en/latest/). We utilize wtforms for all web forms within the CloudRoutes GUI, this includes the forms that create monitors.
 
-For this document we will create a new monitor named `some-monitor`; the first step of creating a monitor is to create the web form needed for users. To start the web form we will create a directory in `cloudroutes-crweb/monitorforms/` called `some-monitor`. Within that directory we will create a `__init__.py` file that will contain a class that defines the form fields required 
+For this document we will create a new monitor named `some-monitor`; the first step of creating a monitor is to create the web form needed for users. To start the web form we will create a directory in `crweb/monitorforms/` called `some-monitor`. Within that directory we will create a `__init__.py` file that will contain a class that defines the form fields required 
 
-    $ mkdir cloudroutes-crweb/monitorforms/some-monitor
-    $ vi cloudroutes-crweb/monitorforms/some-monitor/__init__.py
+    $ mkdir crweb/monitorforms/some-monitor
+    $ vi crweb/monitorforms/some-monitor/__init__.py
 
-Within this file is the actual wtforms code, you can use the [http-keyword](https://github.com/asm-products/cloudroutes-crweb/blob/master/monitorforms/http-keyword/__init__.py) monitor as an example.
+Within this file is the actual wtforms code, you can use the [http-keyword](https://github.com/asm-products/cloudroutes-service/blob/master/crweb/monitorforms/http-keyword/__init__.py) monitor as an example.
 
 There are a couple of guidelines when creating a web form for monitors.
 
@@ -109,18 +109,18 @@ Step #1 and #2 were all about creating the web elements of a monitor. Step #3 is
 
 #### API Based Monitors
 
-An example of an API based monitor would be the [datadog-webhook](https://github.com/asm-products/cloudroutes-crweb/blob/master/monitorapis/datadog-webhook/__init__.py) monitor. The end point for API based monitors is `/api/<short-name>/<monitor id>`. The short-name in our example would be `some-monitor` and the ID would be the `id` key for the monitor in the database. When this end point is called the web application will try to load a python module `monitorapis/<short-name>`. If the module does not exist there is an error, if the module does exist then the web application will call the `webCheck` method from that module.
+An example of an API based monitor would be the [datadog-webhook](https://github.com/asm-products/cloudroutes-service/blob/master/crweb/monitorapis/datadog-webhook/__init__.py) monitor. The end point for API based monitors is `/api/<short-name>/<monitor id>`. The short-name in our example would be `some-monitor` and the ID would be the `id` key for the monitor in the database. When this end point is called the web application will try to load a python module `monitorapis/<short-name>`. If the module does not exist there is an error, if the module does exist then the web application will call the `webCheck` method from that module.
 
 The arguments passed to webCheck will be the full request, monitor object, monitor id, short-name of the monitor type, and an object for the database store.
 
 #### Non-API Based Monitors
 
-Non-API based monitors are monitors that are run via [cram](https://github.com/asm-products/cloudroutes-cram), these monitors are executed from CloudRoutes. You can think of these as external monitors. At the moment of this writing most of these have to do with checking a server/application externally. Using the [http-keyword](https://github.com/asm-products/cloudroutes-cram/tree/master/checks/http-keyword) monitor as an example is the best place to start. All monitors that run through cram are python modules placed into the `checks/` directory. 
+Non-API based monitors are monitors that are run via [cram](https://github.com/asm-products/cloudroutes-service), these monitors are executed from CloudRoutes. You can think of these as external monitors. At the moment of this writing most of these have to do with checking a server/application externally. Using the [http-keyword](https://github.com/asm-products/cloudroutes-service/tree/master/cram/checks/http-keyword) monitor as an example is the best place to start. All monitors that run through cram are python modules placed into the `checks/` directory. 
 
 Much like the wtforms module in Step #1 to create a new monitor simply create a directory with the short-name and a `__init__.py` file.
 
-    $ mkdir checks/some-monitor
-    $ vi checks/some-monitor/__init__.py
+    $ mkdir cram/checks/some-monitor
+    $ vi cram/checks/some-monitor/__init__.py
 
 The only requirement for this monitor is to have a single method called `check`, this method will be given data which is a dictionary that contains the monitors key information.
 
