@@ -12,7 +12,7 @@ In this guide we will use the `aws-ec2restart` reaction as an example.
 
 ## Creating a new reaction
 
-### Step 1: The reaction creation web form - wtforms
+### Step 1: The reaction web form
 
 CloudRoutes is written using the [flask](http://flask.pocoo.org/) framework, a common utility for creating web forms within flask is [wtforms](https://wtforms.readthedocs.org/en/latest/). We utilize wtforms for all web forms within the CloudRoutes GUI, this includes the forms that create reactions.
 
@@ -50,4 +50,16 @@ The simpliest example can be seen below.
     if __name__ == '__main__':
       pass
 
-The above will create a form object that has all of the based required forms and a new field named `example_field`.
+The above will create a form object that has all of the base required fields and a new field named `example_field`. To add more fields simply add them to the class. 
+
+As an example the below class would create a form that had all of the base fields and two additional fields, one for an API key and another for a Resource ID.
+
+    class ReactForm(BaseReactForm):
+        ''' Class that creates a Reaction form for the dashboard '''
+        api_key = TextField("API Key", validators=[DataRequired(message="API Key is a required field")])
+        resource_id = TextField("Resource ID", validators[DataRequired(message="Resource ID is a required field")])
+
+
+### Step 2: Reaction form HTML
+
+Where Step #1 created the web form object for Flask, Step #2 is about creating the HTML & [Jinja2](http://jinja.pocoo.org/) template files that render the web form. The easiest way to create a new template is to simply copy an existing one; a good example template is the [aws-ec2restart.html](https://github.com/asm-products/cloudroutes-service/blob/master/static/templates/reactions/aws-ec2restart.html) reaction.
