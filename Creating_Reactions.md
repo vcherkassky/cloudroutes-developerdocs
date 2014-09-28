@@ -88,3 +88,63 @@ Below is an example of an input field written in HTML and Jinja2.
 
 As you can see Jinja2 accepts if statements, in this example if the page is in edit mode `data['edit']` will be `True`. As per the template if `data['edit'` is `True`, the web form field `aws_access_key` will be created and prepopulated with the value of `data['reaction']['data']['aws_access_key']`. If the value of `data['edit']` is `False` the form field will be created and the placeholder value will be displayed.
 
+When the page is rendered the above template code will turn into the below HTML.
+
+    <div class="form-group">
+    <label for="AWS Access Key" class="col-sm-4 control-label">AWS Access Key</label>
+    <div class="col-sm-8">
+    <div class="input-group">
+    <span class="input-group-btn">
+    <button type="button" id="aws-access-key" class="btn btn-default" rel="popover" data-content="This field should contain your AWS Access Key, which can be obtained from the AWS Management Console." title="AWS Access Key"><i class="fa fa-question"></i></button>
+    </span>
+    <input class="form-control" id="aws_access_key" name="aws_access_key" placeholder="AWS Access Key" type="text" value="">
+    </div>
+    </div>
+    </div>
+
+##### Classes for form fields
+
+If you look at the Jinja2 code in the template you will notice the `class_="form-control"` was translated to `class="form-control"` in the HTML. The CloudRoutes GUI has several form classes that should be used depending on the form type, below is the list and what they are used for.
+
+* form-control - General purpose bootstrap form field class
+* select - Used for `SelectField` form fields and is provided by `bootstrap-multiselect.css`
+* multiselect - Used for `MultiSelectField` form fields and is provided by `bootstrap-multiselect.css`
+
+It is important to make sure that you utilize the appropriate class to ensure a consistent visual appearance on the CloudRoutes dashboard.
+
+#### some-reaction.js
+
+When the reaction page is loaded via the main `web.py` a `.js` file of the same name is also loaded. This file is used for the javascript required to activate popover help text, however it should also be utilized for any other Javascript related code that needs to be imported at the footer of the page. Even if popover text or any other Javascript code is not utilized for this reaction it is required that a `.js` file is present. You can simply create a blank file if necessary.
+
+    $ touch static/templates/reactions/some-reaction.js
+
+#### Processing the form
+
+As a development team our goal is to ensure that everything is modular, when you create a new reaction you do not need to create code to process the web form inputs. This is done automatically via the web application. It is important however to understand how this processing takes place. 
+
+When the web app processes the new reaction the details will be stored into the `reactions` table in RethinkDB, which is a JSON based database. When you edit a reaction the web application will query RethinkDB and store that reactions details into `data['reaction']`; below is an example of the structure of both the database and `data['reaction']`.
+
+    data['reaction'] = {
+      "data": {
+        "apikey":  "dslfjalskdj32432lajfs233432fcaewrq11c",
+        "domain":  "example.com",
+        "email": "example@example.com",
+        "ip":  "10.0.3.1",
+        "name":  "Remove: example.com - 10.0.3.1"
+      } ,
+      "frequency": 0,
+      "id":  "kasdkldj2342-23faew-234fs-a39d519f78",
+      "lastrun": 1411916840.440264,
+      "name":  "Remove: example.com - 10.0.3.1",
+      "rtype":  "cloudflare-ip-remove",
+      "trigger": 0,
+      "uid":  "kasldflksajl-asfw-1337-1337-asdfa213"
+    }
+
+The above example is a reaction entry from a `cloudflare-ip-remove` reaction. When the web application processes the creation form it will place the `name`, `frequency`, and `trigger` fields under the `data['reaction']` dictionary. All other fields are placed into the `data['reaction']['data']` dictionary. This is a similar format to what the actual reaction code will see as well.
+
+### Step 3: Creating the actual reaction code
+
+Steps #1 and #2 were specifically related to creating the web elements of a reaction. Step #3 however is the creation of the reaction module itself. 
+
+In each datacenter/monitoring zone there is a process running that is sometimes refered to as **"the sink"**, this process is executing [crbridge/actioner.py](https://github.com/asm-products/cloudroutes-service/blob/master/crbridge/actioner.py). This process will bind a port and listen for [ZeroMQ](http://zeromq.org/) messages, these messages are the results of health checks from both the web application and [cram/worker.py](https://github.com/asm-products/cloudroutes-service/blob/master/cram/worker.py). 
