@@ -63,3 +63,28 @@ As an example the below class would create a form that had all of the base field
 ### Step 2: Reaction form HTML
 
 Where Step #1 created the web form object for Flask, Step #2 is about creating the HTML & [Jinja2](http://jinja.pocoo.org/) template files that render the web form. The easiest way to create a new template is to simply copy an existing one; a good example template is the [aws-ec2restart.html](https://github.com/asm-products/cloudroutes-service/blob/master/static/templates/reactions/aws-ec2restart.html) reaction.
+
+The majority of the `aws-ec2restart.html` file is a basic page structure; for the most part the structure of each reaction page does not change from reaction to reaction. The main components that change are the form fields themselves.
+
+#### Example form field
+
+Below is an example of an input field written in HTML and Jinja2.
+
+    <div class="form-group">
+      <label for="AWS Access Key" class="col-sm-4 control-label">AWS Access Key</label>
+      <div class="col-sm-8">
+        <div class="input-group">
+          <span class="input-group-btn">
+            <button type="button" id="aws-access-key" class="btn btn-default" rel="popover" data-content="This field should contain your AWS Access Key, which can be obtained from the AWS Management Console." title="AWS Access Key"><i class="fa fa-question"></i></button>
+          </span>
+          {% if data['edit'] %}
+            {{ form.aws_access_key(class_="form-control", value=data['reaction']['data']['aws_access_key']) }}
+          {% else %}
+            {{ form.aws_access_key(class_="form-control", placeholder="AWS Access Key") }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+As you can see Jinja2 accepts if statements, in this example if the page is in edit mode `data['edit']` will be `True`. As per the template if `data['edit'` is `True`, the web form field `aws_access_key` will be created and prepopulated with the value of `data['reaction']['data']['aws_access_key']`. If the value of `data['edit']` is `False` the form field will be created and the placeholder value will be displayed.
+
