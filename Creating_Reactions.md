@@ -272,9 +272,9 @@ The above is a simple example of how to perform the above processing rules.
 
 After a reaction has executed, it is important that an appropriate return code is used. The `actioner.py` process is expecting either a `True`, `False` or `None` return; depending on which value is returned will determine the state of the reactions execution. Below is a list of return value and what that value means to `actioner.py`.
 
-* True - Reaction was processed successfully
-* False - Reaction attempted to process but failed
-* None - Reaction processing was skipped
+* `True` - Reaction was processed successfully
+* `False` - Reaction attempted to process but failed
+* `None` - Reaction processing was skipped
 
 If we review the sample code above, we can see that the return value is set to `None` if the reactions function `actionEC2` was not executed. This tells the `actioner.py` process that the reaction was not executed.
 
