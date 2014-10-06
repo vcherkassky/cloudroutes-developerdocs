@@ -159,7 +159,7 @@ An example of an API based monitor would be the [datadog-webhook](https://github
 
 The following is an example of a simple API based monitor that always marks the monitor failed when called.
 
-    def webCheck(request, monitor, cid, atype, rdb):
+    def webCheck(request, monitor, urldata, rdb):
       ''' Process the webbased api call '''
       replydata = { 
         'headers': { 'Content-type' : 'application/json' }
@@ -167,14 +167,18 @@ The following is an example of a simple API based monitor that always marks the 
       jdata = request.json
        
       ## Delete the Monitor
-      monitor.get(cid, rdb)
-      if jdata['check_key'] == monitor.url and atype == monitor.ctype:
+      monitor.get(urldata['cid'], rdb)
+      if jdata['check_key'] == monitor.url and urldata['atype'] == monitor.ctype:
         monitor.healthcheck = "failed"
         result = monitor.webCheck(rdb)
       replydata['data'] = "{'success':'True'}"
       return replydata
 
-When the `webCheck` method is called it will be given 5 arguments; `request`, `monitor`, `cid`, `atype` and `rdb`. The `request` argument is the full `request` object from Flask, this contains all POST data and Headers of the API request. The `monitor` argument is an object for the `Monitor` class, in the example above we use the `get`, `healthcheck` and `webCheck` methods from this class. The `cid` is the monitor ID value passed from the URL, this is not a validated ID and should be treated the same as any user input. The `atype` argument is the type of API being requested, this is essentially the `ctype` key in the monitors meta data. The `rdb` object is a connection object to the RethinkDB database store.
+When the `webCheck` method is called it will be given 4 arguments; `request`, `monitor`, `urldata` and `rdb`. The `request` argument is the full `request` object from Flask, this contains all POST data and Headers of the API request. The `monitor` argument is an object for the `Monitor` class, in the example above we use the `get`, `healthcheck` and `webCheck` methods from this class.
+
+The `urldata` argument is a dictionary that contains data from the URL making the request. The dictionary contains `cid`, `atype`, `check_key` and `action`. The `cid` is the monitor ID value passed from the URL, this is not a validated ID and should be treated the same as any user input. The `atype` value is the type of API being requested, this is essentially the `ctype` key in the monitors meta data. The `check_key` is an optional URL parameter, if it exists in the URL it can be compared with `monitor.url` as a validator, this is essentually an API Key. The `action` key is also an optional URL parameter, and is used in webhook requests to specify failed or healthy requests.
+
+The `rdb` object is a connection object to the RethinkDB database store.
 
 In the above example if the POST data contains a JSON string that has a key `check_key` and that key is the same as the `monitor.url` objects value, and the `atype` value is the same as the `monitor.cytype` objects value. The `monitor.healthcheck` object will be set to `failed` and the `monitor.webCheck` method will be called. This method will send a health check message to the backend [crbridge](https://github.com/asm-products/cloudroutes-service/tree/master/crbridge) process. This process will process the failed monitor and perform necessary reactions.
 
